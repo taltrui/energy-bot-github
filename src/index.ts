@@ -14,5 +14,5 @@ export = (app: Probot): void => {
     mergeable
   );
 
-  app.on(['pull_request.closed'], cleanupRelease);
+  app.on('pull_request.closed', cleanupRelease);
 };

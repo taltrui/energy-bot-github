@@ -4,6 +4,5 @@ export const isRelease = (branchName: string): boolean => new RegExp('release-*'
 
 export const isWIPorHold = (labels: Array<{ name: string }>): boolean =>
   labels.some((label) => {
-    console.log(label.name.toLowerCase());
     return WIPandHoldNames.includes(label.name.toLowerCase());
   });
