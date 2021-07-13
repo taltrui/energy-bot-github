@@ -5,7 +5,7 @@ import { isRelease } from '../utils';
 const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): Promise<void> => {
   const closedPR = context.payload.pull_request;
 
-  if (!isRelease(closedPR?.head.ref) || closedPR?.base.ref !== 'master') {
+  if (!isRelease(closedPR?.head.ref) || closedPR?.base.ref !== 'master' || !closedPR.merged) {
     return;
   }
 
@@ -39,7 +39,7 @@ const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): P
     );
   }
 
-  const formattedDate = DateTime.now().toFormat('dd-mm-yyyy');
+  const formattedDate = DateTime.now().toFormat('dd-MM-yyyy');
   const newReleaseBranch = `release-${formattedDate}`;
 
   try {
@@ -52,7 +52,21 @@ const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): P
     );
 
     const newCommit = await context.octokit.git.createCommit(
-      context.repo({ message: 'chore: init release', tree: newBranchCommit.data.tree.sha })
+      context.repo({
+        message: 'chore: init release',
+        tree: newBranchCommit.data.tree.sha,
+        parents: [newBranchCommit.data.sha],
+      })
+    );
+
+    await context.octokit.git.updateRef(
+      context.repo({
+        message: 'chore: init release',
+        tree: newBranchCommit.data.tree.sha,
+        parents: [newBranchCommit.data.sha],
+        ref: `heads/${newReleaseBranch}`,
+        sha: newCommit.data.sha,
+      })
     );
 
     await context.octokit.git.updateRef(
