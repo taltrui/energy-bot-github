@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { Context, WebhookPayloadWithRepository } from 'probot';
-import { isRelease } from '../utils';
+
+import { isRelease } from '../utils/github';
 
 const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): Promise<void> => {
   const closedPR = context.payload.pull_request;

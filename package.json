@@ -17,6 +17,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "apisauce": "^2.1.1",
     "luxon": "^1.27.0",
     "probot": "^11.0.1"
   },

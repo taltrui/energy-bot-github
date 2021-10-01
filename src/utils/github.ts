@@ -14,7 +14,7 @@ export const isReleased = (labels: Array<{ name: string }>): boolean =>
   });
 
 export const getReleaseVersionFromComment = (comment: string): string | undefined => {
-  const regex = /([a-zA-Z]+@\d+.\d+.\d+)|(\d+.\d+.\d+)/gi;
+  const regex = /([a-zA-Z-]+@\d+.\d+.\d+)|(\d+.\d+.\d+)/gi;
   const versions = comment.match(regex);
 
   console.log(versions);
