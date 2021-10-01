@@ -9,6 +9,8 @@ const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): P
 
   const mergedReleaseBranch = closedPR?.head;
 
+  let repoHasARelease = false;
+
   if (!masterBranch || !mergedReleaseBranch) {
     return;
   }
@@ -21,6 +23,9 @@ const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): P
     const prs = await context.octokit.pulls.list(context.repo());
 
     const changeBasePromises = prs.data.map((pr) => {
+      if (isRelease(pr.head.ref)) {
+        repoHasARelease = true;
+      }
       if (pr.base.ref === mergedReleaseBranch.ref) {
         return context.octokit.pulls.update(context.repo({ base: 'master', pull_number: pr.number }));
       }
@@ -47,6 +52,10 @@ const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): P
       `Unable to delete release ${mergedReleaseBranch.ref} branch. It is possible to move forward.`
     );
   }
+
+  // If repo already has a release up, we don't create a new one. This cases could be caused when
+  // making a hotfix or a cherry-picked release.
+  if (repoHasARelease) return;
 
   const formattedDate = DateTime.now().toFormat('dd-MM-yyyy');
   const newReleaseBranch = `release-${formattedDate}`;
@@ -80,7 +89,6 @@ const cleanupRelease = async (context: Context<WebhookPayloadWithRepository>): P
         sha: newCommit.data.sha,
       })
     );
-  
   } catch (e) {
     context.log.fatal(
       e as Record<string, unknown>,
