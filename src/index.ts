@@ -1,6 +1,7 @@
 import { Probot } from 'probot';
 import cleanupRelease from './handlers/cleanupRelease';
 import mergeable from './handlers/mergeable';
+// import notifyReleased from './handlers/notifyReleased';
 
 export = (app: Probot): void => {
   app.on(
@@ -15,4 +16,6 @@ export = (app: Probot): void => {
   );
 
   app.on('pull_request.closed', cleanupRelease);
+
+  // app.on('pull_request.labeled', notifyReleased);
 };
